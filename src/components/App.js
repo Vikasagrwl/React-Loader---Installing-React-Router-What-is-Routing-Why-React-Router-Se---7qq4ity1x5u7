@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "../styles/App.css";
 import Loader from "./Loader";
 
@@ -17,14 +17,43 @@ const App = () => {
     email: "",
     name: "",
     phone: "",
-    webiste: "",
+    website: "",
   });
-
-  const handleOnClick = () => {};
+  // const[fetch, setFetch] = useState(false);
+  const handleOnClick = () => {
+    setIsLoading(LoadingStatus.IN_PROGRESS);
+    // setFetch(true)
+  };
 
   const onChangeHandler = (event) => {
     setUserId(event.target.value);
   };
+
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const response = await fetch(
+          "https://content.newtonschool.co/v1/pr/main/users/" + userId
+        );
+        const data = await response.json();
+        setUserData({
+          id: data.id,
+          email: data.email,
+          name: data.name,
+          phone: data.phone,
+          website: data.website,
+        });
+        setTimeout(() => {
+          setIsLoading(LoadingStatus.SUCCESS)
+        }, 2000);
+      } catch (error) {
+        console.log(error);
+      }
+      
+    };
+    if(isLoading==="IN_PROGRESS")
+    getData();
+  }, [isLoading]);
 
   return (
     <div id="main">
@@ -42,12 +71,19 @@ const App = () => {
       </button>
 
       <div id="data">
-        <h1>Click on the button to get the user</h1>
-        <h4 id="id">{userData.id}</h4>
-        <h4 id="email">{userData.email}</h4>
-        <h4 id="name">{userData.name}</h4>
-        <h4 id="phone">{userData.phone}</h4>
-        <h4 id="website">{userData.website}</h4>
+        {isLoading === "IN_PROGRESS" && <Loader />}
+        {isLoading === "NOT_STARTED" && (
+          <h1>Click on the button to get the user</h1>
+        )}
+        {isLoading === "SUCCESS" && (
+          <>
+            <h4 id="id">{userData.id}</h4>
+            <h4 id="email">{userData.email}</h4>
+            <h4 id="name">{userData.name}</h4>
+            <h4 id="phone">{userData.phone}</h4>
+            <h4 id="website">{userData.website}</h4>
+          </>
+        )}
       </div>
     </div>
   );
